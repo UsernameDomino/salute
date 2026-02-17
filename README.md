@@ -2,6 +2,12 @@
 
 Offline-first mobile web application for reporting sightings using the S.A.L.U.T.E. method.
 
+View at https://salutereport.github.io
+
+Shareable QR code:
+
+<img src="./assets/qrcode.png" alt="QR code" width="200">
+
 ## Features
 
 - **Offline-first**: Works without internet after initial load
