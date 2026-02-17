@@ -1,0 +1,588 @@
+/* S.A.L.U.T.E. Reporter - Mobile-First Styles */
+
+/* ============================================
+   CSS Custom Properties (with fallbacks for older browsers)
+   ============================================ */
+:root {
+  /* Colors - high contrast for readability */
+  --color-bg: #ffffff;
+  --color-bg-alt: #f5f5f5;
+  --color-text: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-primary: #1a1a2e;
+  --color-primary-hover: #2d2d4a;
+  --color-link: #1a1a2e;
+  --color-accent: #e94560;
+  --color-success: #1e7b34;
+  --color-warning: #ffc107;
+  --color-error: #dc3545;
+  --color-border: #dddddd;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
+  /* Touch targets - minimum 48px for accessibility */
+  --touch-target: 48px;
+  --touch-target-lg: 56px;
+
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* Dark mode */
+:root.dark {
+  --color-bg: #1a1a2e;
+  --color-bg-alt: #2d2d44;
+  --color-text: #f0f0f0;
+  --color-text-muted: #a0a0b0;
+  --color-primary: #6366f1;
+  --color-primary-hover: #818cf8;
+  --color-link: #a5b4fc;
+  --color-accent: #f472b6;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-border: #3d3d5c;
+
+  /* Feedback colors for dark mode */
+  --color-feedback-success-bg: #1e3a2e;
+  --color-feedback-success-text: #86efac;
+  --color-feedback-error-bg: #3b1f1f;
+  --color-feedback-error-text: #fca5a5;
+}
+
+/* ============================================
+   Reset & Base Styles
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif);
+  font-size: var(--font-size-base, 1rem);
+  line-height: 1.5;
+  color: var(--color-text, #1a1a1a);
+  background-color: var(--color-bg, #ffffff);
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#app {
+  display: flex;
+  display: -webkit-flex;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+h1, h2, h3, h4 {
+  margin: 0 0 var(--space-sm, 0.5rem) 0;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text, #1a1a1a);
+}
+
+h1 {
+  font-size: var(--font-size-xl, 1.5rem);
+}
+
+h2 {
+  font-size: var(--font-size-lg, 1.125rem);
+}
+
+p {
+  margin: 0 0 var(--space-md, 1rem) 0;
+  color: var(--color-text, #1a1a1a);
+}
+
+/* ============================================
+   Buttons - Large Touch Targets
+   ============================================ */
+button, .btn {
+  display: inline-flex;
+  display: -webkit-inline-flex;
+  align-items: center;
+  -webkit-align-items: center;
+  justify-content: center;
+  -webkit-justify-content: center;
+  min-height: var(--touch-target, 48px);
+  min-width: var(--touch-target, 48px);
+  padding: var(--space-sm, 0.5rem) var(--space-md, 1rem);
+  font-family: inherit;
+  font-size: var(--font-size-base, 1rem);
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button:active, .btn:active {
+  transform: scale(0.98);
+}
+
+button:focus-visible, .btn:focus-visible {
+  outline: 3px solid var(--color-accent, #e94560);
+  outline-offset: 2px;
+}
+
+/* Primary button */
+.btn-primary {
+  background-color: var(--color-primary, #1a1a2e);
+  color: #ffffff;
+  border-color: var(--color-primary, #1a1a2e);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--color-primary-hover, #2d2d4a);
+}
+
+/* Secondary button */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-primary, #1a1a2e);
+  border-color: var(--color-border, #dddddd);
+}
+
+.btn-secondary:hover, .btn-secondary:focus {
+  background-color: var(--color-bg-alt, #f5f5f5);
+  border-color: var(--color-primary, #1a1a2e);
+}
+
+/* Preset button (for SALUTE field options) */
+.btn-preset {
+  background-color: var(--color-bg-alt, #f5f5f5);
+  color: var(--color-text, #1a1a1a);
+  border-color: var(--color-border, #dddddd);
+  padding: var(--space-sm, 0.5rem) var(--space-md, 1rem);
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.btn-preset:hover, .btn-preset:focus {
+  border-color: var(--color-primary, #1a1a2e);
+}
+
+.btn-preset.selected, .btn-preset[aria-pressed="true"] {
+  background-color: var(--color-primary, #1a1a2e);
+  color: #ffffff;
+  border-color: var(--color-primary, #1a1a2e);
+}
+
+/* Large button */
+.btn-lg {
+  min-height: var(--touch-target-lg, 56px);
+  font-size: var(--font-size-lg, 1.125rem);
+  padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
+}
+
+/* Full width button */
+.btn-block {
+  width: 100%;
+}
+
+/* Icon button */
+.btn-icon {
+  padding: var(--space-sm, 0.5rem);
+}
+
+/* Success state */
+.btn-success {
+  background-color: var(--color-success, #28a745);
+  color: #ffffff;
+  border-color: var(--color-success, #28a745);
+}
+
+/* ============================================
+   Form Elements
+   ============================================ */
+input, textarea, select {
+  display: block;
+  width: 100%;
+  min-height: var(--touch-target, 48px);
+  padding: var(--space-sm, 0.5rem) var(--space-md, 1rem);
+  font-family: inherit;
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-text, #1a1a1a);
+  background-color: var(--color-bg, #ffffff);
+  border: 2px solid var(--color-border, #dddddd);
+  border-radius: var(--radius-md, 8px);
+  transition: border-color 0.15s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-primary, #1a1a2e);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--color-text-muted, #666666);
+}
+
+/* Date and time inputs - special handling for native controls */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color-scheme: light dark;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Safari/iOS specific fixes for date inputs */
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+  text-align: left;
+  color: #1a1a1a;
+}
+
+/* Fix for dark mode preferences bleeding through */
+@media (prefers-color-scheme: dark) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  input[type="text"],
+  textarea {
+    background-color: #ffffff;
+    color: #1a1a1a;
+    color-scheme: light;
+  }
+}
+
+/* Force light color scheme for inputs */
+input, textarea, select {
+  color-scheme: light;
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+label {
+  display: block;
+  margin-bottom: var(--space-xs, 0.25rem);
+  font-weight: 500;
+  color: var(--color-text, #1a1a1a);
+}
+
+/* ============================================
+   Layout Utilities
+   ============================================ */
+.container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 var(--space-md, 1rem);
+}
+
+.flex {
+  display: flex;
+  display: -webkit-flex;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+}
+
+.flex-col {
+  flex-direction: column;
+  -webkit-flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+  -webkit-align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+}
+
+.gap-xs {
+  gap: var(--space-xs, 0.25rem);
+}
+
+.gap-sm {
+  gap: var(--space-sm, 0.5rem);
+}
+
+.gap-md {
+  gap: var(--space-md, 1rem);
+}
+
+/* ============================================
+   Field Section (SALUTE fields)
+   ============================================ */
+.field-section {
+  padding: var(--space-md, 1rem) 0;
+  border-bottom: 1px solid var(--color-border, #dddddd);
+}
+
+.field-section:last-child {
+  border-bottom: none;
+}
+
+.field-label {
+  display: flex;
+  display: -webkit-flex;
+  align-items: center;
+  -webkit-align-items: center;
+  gap: var(--space-sm, 0.5rem);
+  margin-bottom: var(--space-sm, 0.5rem);
+}
+
+.field-letter {
+  display: inline-flex;
+  display: -webkit-inline-flex;
+  align-items: center;
+  -webkit-align-items: center;
+  justify-content: center;
+  -webkit-justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: 700;
+  color: #ffffff;
+  background-color: var(--color-primary, #1a1a2e);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.field-title {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: 600;
+  color: var(--color-text, #1a1a1a);
+}
+
+.field-presets {
+  display: flex;
+  display: -webkit-flex;
+  flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  gap: var(--space-sm, 0.5rem);
+  margin-bottom: var(--space-sm, 0.5rem);
+}
+
+.field-input {
+  margin-top: var(--space-sm, 0.5rem);
+}
+
+/* Completed field indicator */
+.field-section.completed .field-letter {
+  background-color: var(--color-success, #28a745);
+}
+
+/* ============================================
+   Report Output
+   ============================================ */
+.report-output {
+  background-color: var(--color-bg-alt, #f5f5f5);
+  border: 2px solid var(--color-border, #dddddd);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-md, 1rem);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text, #1a1a1a);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* ============================================
+   Fixed Footer (Generate Report button)
+   ============================================ */
+.fixed-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-md, 1rem);
+  background-color: var(--color-bg, #ffffff);
+  border-top: 1px solid var(--color-border, #dddddd);
+  z-index: 100;
+  transition: background-color 0.2s ease;
+}
+
+.fixed-footer .container {
+  display: flex;
+  display: -webkit-flex;
+  gap: var(--space-sm, 0.5rem);
+}
+
+/* Add padding to main content to account for fixed footer */
+.main-content {
+  padding-bottom: 100px;
+}
+
+/* ============================================
+   Modal (for install instructions)
+   ============================================ */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  display: -webkit-flex;
+  align-items: center;
+  -webkit-align-items: center;
+  justify-content: center;
+  -webkit-justify-content: center;
+  padding: var(--space-md, 1rem);
+  z-index: 200;
+}
+
+.modal {
+  background-color: var(--color-bg, #ffffff);
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--space-lg, 1.5rem);
+  max-width: 400px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  color: var(--color-text, #1a1a1a);
+}
+
+.modal-header {
+  display: flex;
+  display: -webkit-flex;
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+  align-items: center;
+  -webkit-align-items: center;
+  margin-bottom: var(--space-md, 1rem);
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.text-muted {
+  color: var(--color-text-muted, #666666);
+}
+
+.text-success {
+  color: var(--color-success, #28a745);
+}
+
+.text-error {
+  color: var(--color-error, #dc3545);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mb-0 { margin-bottom: 0; }
+.mb-sm { margin-bottom: var(--space-sm, 0.5rem); }
+.mb-md { margin-bottom: var(--space-md, 1rem); }
+.mb-lg { margin-bottom: var(--space-lg, 1.5rem); }
+
+.mt-sm { margin-top: var(--space-sm, 0.5rem); }
+.mt-md { margin-top: var(--space-md, 1rem); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================
+   Loading State
+   ============================================ */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border, #dddddd);
+  border-top-color: var(--color-primary, #1a1a2e);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   Feedback Messages
+   ============================================ */
+.feedback {
+  display: flex;
+  display: -webkit-flex;
+  align-items: center;
+  -webkit-align-items: center;
+  gap: var(--space-sm, 0.5rem);
+  padding: var(--space-sm, 0.5rem) var(--space-md, 1rem);
+  border-radius: var(--radius-md, 8px);
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.feedback-success {
+  background-color: var(--color-feedback-success-bg, #d4edda);
+  color: var(--color-feedback-success-text, #155724);
+}
+
+.feedback-error {
+  background-color: var(--color-feedback-error-bg, #f8d7da);
+  color: var(--color-feedback-error-text, #721c24);
+}
+
+/* ============================================
+   Install Prompt
+   ============================================ */
+.install-banner {
+  display: flex;
+  display: -webkit-flex;
+  align-items: center;
+  -webkit-align-items: center;
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+  padding: var(--space-sm, 0.5rem) var(--space-md, 1rem);
+  background-color: var(--color-bg-alt, #f5f5f5);
+  border-bottom: 1px solid var(--color-border, #dddddd);
+}
+
+.install-banner-text {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text, #1a1a1a);
+}

@@ -1,0 +1,50 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+
+# Environment files
+*.local
+.env
+.env.*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Test coverage
+coverage
+
+# Editor directories and files
+.vscode
+.idea
+.cursor
+.fleet
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+\#*\#
+.#*
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings
+.factorypath
+*.iml
+.nova
+.zed
+
+# OS files
+.DS_Store
+Thumbs.db
