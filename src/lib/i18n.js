@@ -88,9 +88,11 @@ export const translations = {
       share: 'Share',
       back: '← Back to Form',
       undo: 'Undo',
-      take_photo: 'Take Photo',
-      choose_photo: 'Choose from Gallery',
-      remove_photo: 'Remove'
+      add_photo: '+ Add Photo',
+      remove_photo: 'Remove',
+      share_text: 'Share Report Text',
+      share_photos: 'Share Photos',
+      copy_text: 'Copy text'
     },
 
     // Placeholders
@@ -110,8 +112,7 @@ export const translations = {
       cleared: 'Form cleared',
       undo_available: 'Undo',
       required_fields: 'Please fill in required fields',
-      photos_count: '{n} / 5 photos',
-      photos_share_note: 'Report + photos will be shared as files',
+      photos_count: '{n} of 5 photos',
       max_photos: 'Maximum 5 photos reached'
     },
 
@@ -269,9 +270,11 @@ export const translations = {
       share: 'Compartir',
       back: '← Volver al Formulario',
       undo: 'Deshacer',
-      take_photo: 'Tomar Foto',
-      choose_photo: 'Elegir de Galería',
-      remove_photo: 'Eliminar'
+      add_photo: '+ Agregar Foto',
+      remove_photo: 'Eliminar',
+      share_text: 'Compartir Texto',
+      share_photos: 'Compartir Fotos',
+      copy_text: 'Copiar texto'
     },
 
     // Placeholders
@@ -291,8 +294,7 @@ export const translations = {
       cleared: 'Formulario limpiado',
       undo_available: 'Deshacer',
       required_fields: 'Por favor complete los campos requeridos',
-      photos_count: '{n} / 5 fotos',
-      photos_share_note: 'El informe + fotos se compartirán como archivos',
+      photos_count: '{n} de 5 fotos',
       max_photos: 'Máximo 5 fotos alcanzado'
     },
 

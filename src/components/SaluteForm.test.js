@@ -2,6 +2,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/svelte'
 import SaluteForm from './SaluteForm.svelte'
 
+function createMockPhoto(name = 'test.jpg') {
+  return new File(['pixel'], name, { type: 'image/jpeg' })
+}
+
+async function addPhoto(container) {
+  const fileInput = container.querySelector('input[type="file"]')
+  const photo = createMockPhoto()
+  Object.defineProperty(fileInput, 'files', { value: [photo], configurable: true })
+  await fireEvent.change(fileInput)
+}
+
 describe('SaluteForm', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
@@ -87,23 +98,21 @@ describe('SaluteForm', () => {
         canShare: undefined
       })
 
-      render(SaluteForm)
+      const { container } = render(SaluteForm)
 
-      // Fill all required fields: Size, Activity, Location, Time
-      await fireEvent.click(screen.getByRole('button', { name: '3-5' })) // Size
-      await fireEvent.click(screen.getByRole('button', { name: 'Patrol' })) // Activity
+      await fireEvent.click(screen.getByRole('button', { name: '3-5' }))
+      await fireEvent.click(screen.getByRole('button', { name: 'Patrol' }))
 
-      // Location: Enter address text
       const addressInput = screen.getByPlaceholderText(/123 Main St/i)
       await fireEvent.input(addressInput, { target: { value: 'Downtown plaza' } })
 
-      await fireEvent.click(screen.getByRole('button', { name: 'Just now' })) // Time
+      await fireEvent.click(screen.getByRole('button', { name: 'Just now' }))
 
-      // Generate report
+      await addPhoto(container)
+
       const generateBtn = screen.getByRole('button', { name: /generate|report/i })
       await fireEvent.click(generateBtn)
 
-      // Should show report output
       await waitFor(() => {
         expect(screen.getByText(/SIGHTING REPORT/)).toBeInTheDocument()
       })
@@ -133,42 +142,41 @@ describe('SaluteForm', () => {
         canShare: undefined
       })
 
-      render(SaluteForm)
+      const { container } = render(SaluteForm)
 
-      // Fill all required fields
-      await fireEvent.click(screen.getByRole('button', { name: '3-5' })) // Size
-      await fireEvent.click(screen.getByRole('button', { name: 'Patrol' })) // Activity
+      await fireEvent.click(screen.getByRole('button', { name: '3-5' }))
+      await fireEvent.click(screen.getByRole('button', { name: 'Patrol' }))
 
-      // Location: Enter address text
       const addressInput = screen.getByPlaceholderText(/123 Main St/i)
       await fireEvent.input(addressInput, { target: { value: 'Test location' } })
 
-      await fireEvent.click(screen.getByRole('button', { name: 'Just now' })) // Time
+      await fireEvent.click(screen.getByRole('button', { name: 'Just now' }))
 
-      // Click generate
+      await addPhoto(container)
+
       const generateBtn = screen.getByRole('button', { name: /generate|report/i })
       await fireEvent.click(generateBtn)
 
-      // Should NOT show validation error, should show report instead
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument()
         expect(screen.getByText(/SIGHTING REPORT/)).toBeInTheDocument()
       })
     })
 
-    it('validation error lists missing field names', async () => {
+    it('validation error lists missing field names including Photos', async () => {
       render(SaluteForm)
 
-      // Click generate without filling any fields
       const generateBtn = screen.getByRole('button', { name: /generate|report/i })
       await fireEvent.click(generateBtn)
 
-      // Should show validation error with field names
       await waitFor(() => {
         const alert = screen.getByRole('alert')
         expect(alert).toBeInTheDocument()
-        // Should list all required fields: Size, Activity, Location, Time
-        expect(alert.textContent).toMatch(/size|activity|location|time/i)
+        expect(alert.textContent).toMatch(/size/i)
+        expect(alert.textContent).toMatch(/activity/i)
+        expect(alert.textContent).toMatch(/location/i)
+        expect(alert.textContent).toMatch(/time/i)
+        expect(alert.textContent).toMatch(/photos/i)
       })
     })
 
@@ -178,12 +186,11 @@ describe('SaluteForm', () => {
       expect(screen.getByRole('button', { name: 'Riot gear' })).toBeInTheDocument()
     })
 
-    it('shows required indicators on Size, Activity, Location, and Time fields', () => {
+    it('shows required indicators on Size, Activity, Location, Time, and Photos fields', () => {
       render(SaluteForm)
 
-      // Should have 4 required asterisks
       const asterisks = screen.getAllByText('*')
-      expect(asterisks.length).toBe(4)
+      expect(asterisks.length).toBe(5)
     })
 
     it('clears all fields on clear button click', async () => {

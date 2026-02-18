@@ -18,6 +18,12 @@ EQUIPMENT: Long guns
 
 ═══════════════════════`
 
+  function createMockPhotos(count = 1) {
+    return Array.from({ length: count }, (_, i) =>
+      new File(['pixel'], `photo${i}.jpg`, { type: 'image/jpeg' })
+    )
+  }
+
   beforeEach(() => {
     vi.restoreAllMocks()
   })
@@ -28,31 +34,20 @@ EQUIPMENT: Long guns
 
       expect(screen.getByText(/SIGHTING REPORT/)).toBeInTheDocument()
     })
-
-    it('shows copy button', () => {
-      render(ReportOutput, { props: { report: sampleReport } })
-
-      expect(screen.getByRole('button', { name: /copy/i })).toBeInTheDocument()
-    })
-
-    it('shows share button when Web Share available', () => {
-      vi.stubGlobal('navigator', { share: vi.fn() })
-
-      render(ReportOutput, { props: { report: sampleReport } })
-
-      expect(screen.getByRole('button', { name: /share/i })).toBeInTheDocument()
-    })
-
-    it('hides share button when Web Share unavailable', () => {
-      vi.stubGlobal('navigator', {})
-
-      render(ReportOutput, { props: { report: sampleReport } })
-
-      expect(screen.queryByRole('button', { name: /share/i })).not.toBeInTheDocument()
-    })
   })
 
-  describe('Copy functionality', () => {
+  describe('Mode A: No Web Share API (copy only)', () => {
+    it('shows only Copy Report button when Web Share unavailable', () => {
+      vi.stubGlobal('navigator', {
+        clipboard: { writeText: vi.fn().mockResolvedValue(undefined) }
+      })
+
+      render(ReportOutput, { props: { report: sampleReport } })
+
+      expect(screen.getByRole('button', { name: /copy report/i })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /share/i })).not.toBeInTheDocument()
+    })
+
     it('copies report to clipboard on button click', async () => {
       const writeTextMock = vi.fn().mockResolvedValue(undefined)
       vi.stubGlobal('navigator', {
@@ -61,7 +56,7 @@ EQUIPMENT: Long guns
 
       render(ReportOutput, { props: { report: sampleReport } })
 
-      const copyBtn = screen.getByRole('button', { name: /copy/i })
+      const copyBtn = screen.getByRole('button', { name: /copy report/i })
       await fireEvent.click(copyBtn)
 
       expect(writeTextMock).toHaveBeenCalledWith(sampleReport)
@@ -75,11 +70,10 @@ EQUIPMENT: Long guns
 
       render(ReportOutput, { props: { report: sampleReport } })
 
-      const copyBtn = screen.getByRole('button', { name: /copy/i })
+      const copyBtn = screen.getByRole('button', { name: /copy report/i })
       await fireEvent.click(copyBtn)
 
       await waitFor(() => {
-        // Check for feedback div (specifically the one with success class)
         const feedback = document.querySelector('.feedback-success')
         expect(feedback).toBeInTheDocument()
       })
@@ -93,30 +87,146 @@ EQUIPMENT: Long guns
 
       render(ReportOutput, { props: { report: sampleReport } })
 
-      const copyBtn = screen.getByRole('button', { name: /copy/i })
+      const copyBtn = screen.getByRole('button', { name: /copy report/i })
       await fireEvent.click(copyBtn)
 
       await waitFor(() => {
-        // Check for feedback div (specifically the one with error class)
         const feedback = document.querySelector('.feedback-error')
         expect(feedback).toBeInTheDocument()
       })
     })
   })
 
-  describe('Share functionality', () => {
-    it('opens native share dialog with report text', async () => {
+  describe('Mode B: Web Share available, no photos', () => {
+    it('shows single Share button and small Copy button', () => {
+      vi.stubGlobal('navigator', {
+        share: vi.fn(),
+        clipboard: { writeText: vi.fn().mockResolvedValue(undefined) }
+      })
+
+      render(ReportOutput, { props: { report: sampleReport, photos: [] } })
+
+      expect(screen.getByRole('button', { name: /^share$/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /copy text/i })).toBeInTheDocument()
+    })
+
+    it('calls shareText when Share button is clicked', async () => {
       const shareMock = vi.fn().mockResolvedValue(undefined)
-      vi.stubGlobal('navigator', { share: shareMock })
+      vi.stubGlobal('navigator', {
+        share: shareMock,
+        clipboard: { writeText: vi.fn().mockResolvedValue(undefined) }
+      })
 
-      render(ReportOutput, { props: { report: sampleReport } })
+      render(ReportOutput, { props: { report: sampleReport, photos: [] } })
 
-      const shareBtn = screen.getByRole('button', { name: /share/i })
+      const shareBtn = screen.getByRole('button', { name: /^share$/i })
       await fireEvent.click(shareBtn)
 
       expect(shareMock).toHaveBeenCalledWith(
         expect.objectContaining({ text: sampleReport })
       )
+    })
+  })
+
+  describe('Mode B: Web Share available, with photos (two-step)', () => {
+    it('shows Step 1 share text and Step 2 share photos buttons', () => {
+      vi.stubGlobal('navigator', {
+        share: vi.fn(),
+        canShare: vi.fn().mockReturnValue(true),
+        clipboard: { writeText: vi.fn().mockResolvedValue(undefined) }
+      })
+
+      const photos = createMockPhotos(2)
+      render(ReportOutput, { props: { report: sampleReport, photos } })
+
+      expect(screen.getByRole('button', { name: /share report text/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /share photos/i })).toBeInTheDocument()
+    })
+
+    it('Step 2 share photos button is disabled before Step 1', () => {
+      vi.stubGlobal('navigator', {
+        share: vi.fn(),
+        canShare: vi.fn().mockReturnValue(true),
+        clipboard: { writeText: vi.fn().mockResolvedValue(undefined) }
+      })
+
+      const photos = createMockPhotos(2)
+      render(ReportOutput, { props: { report: sampleReport, photos } })
+
+      const sharePhotosBtn = screen.getByRole('button', { name: /share photos/i })
+      expect(sharePhotosBtn).toBeDisabled()
+    })
+
+    it('Step 2 becomes enabled after Step 1 is completed', async () => {
+      const shareMock = vi.fn().mockResolvedValue(undefined)
+      vi.stubGlobal('navigator', {
+        share: shareMock,
+        canShare: vi.fn().mockReturnValue(true),
+        clipboard: { writeText: vi.fn().mockResolvedValue(undefined) }
+      })
+
+      const photos = createMockPhotos(2)
+      render(ReportOutput, { props: { report: sampleReport, photos } })
+
+      const shareTextBtn = screen.getByRole('button', { name: /share report text/i })
+      await fireEvent.click(shareTextBtn)
+
+      await waitFor(() => {
+        const sharePhotosBtn = screen.getByRole('button', { name: /share photos/i })
+        expect(sharePhotosBtn).not.toBeDisabled()
+      })
+    })
+
+    it('shows small Copy text button alongside Step 1', () => {
+      vi.stubGlobal('navigator', {
+        share: vi.fn(),
+        canShare: vi.fn().mockReturnValue(true),
+        clipboard: { writeText: vi.fn().mockResolvedValue(undefined) }
+      })
+
+      const photos = createMockPhotos(1)
+      render(ReportOutput, { props: { report: sampleReport, photos } })
+
+      expect(screen.getByRole('button', { name: /copy text/i })).toBeInTheDocument()
+    })
+
+    it('Step 1 share text calls navigator.share with report text', async () => {
+      const shareMock = vi.fn().mockResolvedValue(undefined)
+      vi.stubGlobal('navigator', {
+        share: shareMock,
+        canShare: vi.fn().mockReturnValue(true),
+        clipboard: { writeText: vi.fn().mockResolvedValue(undefined) }
+      })
+
+      const photos = createMockPhotos(1)
+      render(ReportOutput, { props: { report: sampleReport, photos } })
+
+      const shareTextBtn = screen.getByRole('button', { name: /share report text/i })
+      await fireEvent.click(shareTextBtn)
+
+      expect(shareMock).toHaveBeenCalledWith(
+        expect.objectContaining({ text: sampleReport })
+      )
+    })
+
+    it('shows checkmark on Step 1 after completing it', async () => {
+      const shareMock = vi.fn().mockResolvedValue(undefined)
+      vi.stubGlobal('navigator', {
+        share: shareMock,
+        canShare: vi.fn().mockReturnValue(true),
+        clipboard: { writeText: vi.fn().mockResolvedValue(undefined) }
+      })
+
+      const photos = createMockPhotos(1)
+      const { container } = render(ReportOutput, { props: { report: sampleReport, photos } })
+
+      const shareTextBtn = screen.getByRole('button', { name: /share report text/i })
+      await fireEvent.click(shareTextBtn)
+
+      await waitFor(() => {
+        const step1 = container.querySelector('.share-step-1')
+        expect(step1.textContent).toContain('✓')
+      })
     })
   })
 })

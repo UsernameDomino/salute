@@ -58,7 +58,8 @@
     hasValue(formData.size) &&
     hasValue(formData.activity) &&
     formData.location.hasValue &&
-    formData.time.value !== null
+    formData.time.value !== null &&
+    photos.length > 0
   )
 
   // Track missing required fields for feedback
@@ -68,6 +69,7 @@
     if (!hasValue(formData.activity)) missing.push($t('fields.activity'))
     if (!formData.location.hasValue) missing.push($t('fields.location'))
     if (!formData.time.value) missing.push($t('fields.time'))
+    if (photos.length === 0) missing.push($t('fields.photos'))
     return missing
   })
 
@@ -215,6 +217,7 @@
 
       <PhotoCapture
         {photos}
+        required={true}
         onchange={(value) => photos = value}
       />
     </div>
@@ -297,26 +300,6 @@
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-  }
-
-  .progress-tracker {
-    font-family: monospace;
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    color: var(--color-text-muted, #999);
-  }
-
-  .progress-tracker span.completed {
-    color: var(--color-success, #28a745);
-  }
-
-  .progress-tracker .dot {
-    color: var(--color-text-muted, #999);
-  }
-
-  .progress-tracker .dot.completed {
-    color: var(--color-success, #28a745);
   }
 
   .footer-buttons {

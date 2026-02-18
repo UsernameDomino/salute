@@ -1,22 +1,20 @@
 <script>
   /**
    * PhotoCapture - Capture or select photos to attach to a SALUTE report.
-   * Uses native file inputs (camera + gallery) and stores File objects in memory.
+   * Uses a single native file input and stores File objects in memory.
    */
 
   import { t } from '../lib/i18n.js'
 
   const MAX_PHOTOS = 5
 
-  let { photos = [], onchange = () => {} } = $props()
+  let { photos = [], required = false, onchange = () => {} } = $props()
 
-  let cameraInput = $state(null)
-  let galleryInput = $state(null)
+  let fileInput = $state(null)
   let thumbnailUrls = $state([])
 
   let atLimit = $derived(photos.length >= MAX_PHOTOS)
 
-  // Rebuild thumbnail URLs whenever photos array changes
   $effect(() => {
     const newUrls = photos.map(file =>
       typeof URL !== 'undefined' && URL.createObjectURL
@@ -66,39 +64,39 @@
       <span class="field-check">✓</span>
     {/if}
     <span class="field-letter photo-letter">📷</span>
-    <span class="field-title">{$t('fields.photos')}</span>
+    <span class="field-title">{$t('fields.photos')}{#if required}<span class="required-indicator">*</span>{/if}</span>
   </div>
 
-  <div class="photo-buttons">
+  <div class="photo-grid-area">
+    {#each thumbnailUrls as url, i}
+      <div class="photo-thumb">
+        <img src={url} alt="Photo {i + 1}" />
+        <button
+          type="button"
+          class="photo-remove"
+          onclick={() => removePhoto(i)}
+          aria-label="{$t('buttons.remove_photo')} {i + 1}"
+        >
+          ✕
+        </button>
+      </div>
+    {/each}
+
     <button
       type="button"
-      class="btn-preset"
+      class="photo-add-btn"
+      class:at-limit={atLimit}
+      onclick={() => fileInput?.click()}
       disabled={atLimit}
-      onclick={() => cameraInput?.click()}
+      aria-label={$t('buttons.add_photo')}
     >
-      📸 {$t('buttons.take_photo')}
-    </button>
-    <button
-      type="button"
-      class="btn-preset"
-      disabled={atLimit}
-      onclick={() => galleryInput?.click()}
-    >
-      🖼️ {$t('buttons.choose_photo')}
+      <span class="photo-add-icon">+</span>
+      <span class="photo-add-label">{$t('buttons.add_photo')}</span>
     </button>
   </div>
 
-  <!-- Hidden file inputs -->
   <input
-    bind:this={cameraInput}
-    type="file"
-    accept="image/*"
-    capture="environment"
-    class="sr-only"
-    onchange={handleCapture}
-  />
-  <input
-    bind:this={galleryInput}
+    bind:this={fileInput}
     type="file"
     accept="image/*"
     multiple
@@ -106,27 +104,9 @@
     onchange={handleCapture}
   />
 
-  {#if photos.length > 0}
-    <div class="photo-grid">
-      {#each thumbnailUrls as url, i}
-        <div class="photo-thumb">
-          <img src={url} alt="Photo {i + 1}" />
-          <button
-            type="button"
-            class="photo-remove"
-            onclick={() => removePhoto(i)}
-            aria-label="{$t('buttons.remove_photo')} {i + 1}"
-          >
-            ✕
-          </button>
-        </div>
-      {/each}
-    </div>
-
-    <div class="photo-count">
-      {$t('messages.photos_count', { n: photos.length })}
-    </div>
-  {/if}
+  <div class="photo-count">
+    {$t('messages.photos_count', { n: photos.length })}
+  </div>
 
   {#if atLimit}
     <div class="photo-limit-note">
@@ -144,19 +124,12 @@
     height: auto;
   }
 
-  .photo-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
+  .required-indicator {
+    color: var(--color-error, #dc3545);
+    margin-left: 0.25rem;
   }
 
-  .photo-buttons button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  .photo-grid {
+  .photo-grid-area {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 0.5rem;
@@ -199,10 +172,45 @@
     justify-content: center;
   }
 
+  .photo-add-btn {
+    aspect-ratio: 1;
+    border-radius: var(--radius-md, 8px);
+    border: 2px dashed var(--color-border, #dddddd);
+    background: var(--color-bg-alt, #f5f5f5);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    min-height: auto;
+    min-width: auto;
+  }
+
+  .photo-add-btn:hover {
+    border-color: var(--color-primary, #1a1a2e);
+    background: var(--color-bg, #ffffff);
+  }
+
+  .photo-add-icon {
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--color-text-muted, #666666);
+  }
+
+  .photo-add-label {
+    font-size: 0.7rem;
+    color: var(--color-text-muted, #666666);
+    text-align: center;
+  }
+
   .photo-count {
     font-size: 0.85rem;
     color: var(--color-text-muted, #666666);
-    margin-top: 0.25rem;
+    margin-top: 0.375rem;
   }
 
   .photo-limit-note {

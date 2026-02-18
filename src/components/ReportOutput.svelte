@@ -1,6 +1,10 @@
 <script>
   /**
-   * ReportOutput - Display formatted report with copy/share actions
+   * ReportOutput - Display formatted report with copy/share actions.
+   * Three modes:
+   *   A) No Web Share → single "Copy Report" CTA
+   *   B) Web Share, no photos → "Share" + small "Copy text"
+   *   C) Web Share, with photos → two-step: Share Text → Share Photos
    */
 
   import { copyToClipboard, canShare, shareText, shareWithFiles, canShareFiles } from '../lib/clipboard.js'
@@ -8,23 +12,20 @@
 
   let { report = '', photos = [] } = $props()
 
-  // State
-  let copyStatus = $state('') // '', 'success', 'error'
+  let copyStatus = $state('')
   let shareAvailable = $state(false)
   let fileShareAvailable = $state(false)
+  let shareStep = $state(0)
   let thumbnailUrls = $state([])
 
-  // Check share availability on mount
   $effect(() => {
     shareAvailable = canShare()
   })
 
-  // Check file share support when photos change
   $effect(() => {
     fileShareAvailable = photos.length > 0 && canShareFiles(photos)
   })
 
-  // Build thumbnail URLs for display
   $effect(() => {
     const newUrls = photos.map(file =>
       typeof URL !== 'undefined' && URL.createObjectURL
@@ -42,26 +43,34 @@
     }
   })
 
+  let hasPhotos = $derived(photos.length > 0)
+  let twoStepMode = $derived(shareAvailable && hasPhotos)
+
   async function handleCopy() {
     copyStatus = ''
     const result = await copyToClipboard(report)
 
     if (result.success) {
       copyStatus = 'success'
-      setTimeout(() => {
-        copyStatus = ''
-      }, 3000)
+      setTimeout(() => { copyStatus = '' }, 3000)
     } else {
       copyStatus = 'error'
     }
   }
 
-  async function handleShare() {
-    if (photos.length > 0) {
-      await shareWithFiles(report, photos, 'SALUTE Report')
-    } else {
-      await shareText(report, 'SALUTE Report')
-    }
+  async function handleShareText() {
+    await shareText(report, 'SALUTE Report')
+    shareStep = 1
+  }
+
+  async function handleSharePhotos() {
+    if (shareStep < 1) return
+    await shareWithFiles('', photos, 'SALUTE Report')
+    shareStep = 2
+  }
+
+  async function handleSingleShare() {
+    await shareText(report, 'SALUTE Report')
   }
 </script>
 
@@ -79,39 +88,88 @@
           </div>
         {/each}
       </div>
-      {#if shareAvailable}
-        <div class="photo-share-note">
-          {$t('messages.photos_share_note')}
-        </div>
-      {/if}
     </div>
   {/if}
 
   <div class="report-actions">
-    <button
-      type="button"
-      class="btn-primary btn-lg"
-      onclick={handleCopy}
-      aria-label={$t('buttons.copy')}
-    >
-      {#if copyStatus === 'success'}
-        ✓ {$t('messages.copied')}
-      {:else if copyStatus === 'error'}
-        {$t('messages.copy_failed')}
-      {:else}
-        📋 {$t('buttons.copy')}
-      {/if}
-    </button>
-
-    {#if shareAvailable}
+    {#if !shareAvailable}
+      <!-- Mode A: Copy only -->
       <button
         type="button"
-        class="{photos.length > 0 ? 'btn-primary' : 'btn-secondary'} btn-lg"
-        onclick={handleShare}
-        aria-label={$t('buttons.share')}
+        class="btn-primary btn-lg action-full"
+        onclick={handleCopy}
+        aria-label={$t('buttons.copy')}
       >
-        📤 {$t('buttons.share')}{#if photos.length > 0} + 📷 {photos.length}{/if}
+        {#if copyStatus === 'success'}
+          ✓ {$t('messages.copied')}
+        {:else if copyStatus === 'error'}
+          {$t('messages.copy_failed')}
+        {:else}
+          📋 {$t('buttons.copy')}
+        {/if}
       </button>
+
+    {:else if !hasPhotos}
+      <!-- Mode B: Share (single) + small copy -->
+      <div class="share-row">
+        <button
+          type="button"
+          class="btn-primary btn-lg action-main"
+          onclick={handleSingleShare}
+          aria-label={$t('buttons.share')}
+        >
+          📤 {$t('buttons.share')}
+        </button>
+        <button
+          type="button"
+          class="btn-link action-sub"
+          onclick={handleCopy}
+          aria-label={$t('buttons.copy_text')}
+        >
+          {$t('buttons.copy_text')}
+        </button>
+      </div>
+
+    {:else}
+      <!-- Mode C: Two-step share -->
+      <div class="share-step share-step-1">
+        <span class="step-label">Step 1</span>
+        <div class="share-row">
+          <button
+            type="button"
+            class="btn-primary btn-lg action-main"
+            class:step-done={shareStep >= 1}
+            onclick={handleShareText}
+            aria-label={$t('buttons.share_text')}
+          >
+            {#if shareStep >= 1}✓{/if} 📤 {$t('buttons.share_text')}
+          </button>
+          <button
+            type="button"
+            class="btn-link action-sub"
+            onclick={handleCopy}
+            aria-label={$t('buttons.copy_text')}
+          >
+            {$t('buttons.copy_text')}
+          </button>
+        </div>
+      </div>
+
+      <div class="share-step share-step-2">
+        <span class="step-label">Step 2</span>
+        <div class="share-row">
+          <button
+            type="button"
+            class="btn-primary btn-lg action-main"
+            class:step-done={shareStep >= 2}
+            disabled={shareStep < 1}
+            onclick={handleSharePhotos}
+            aria-label="{$t('buttons.share_photos')} ({photos.length})"
+          >
+            {#if shareStep >= 2}✓{/if} 📷 {$t('buttons.share_photos')} ({photos.length})
+          </button>
+        </div>
+      </div>
     {/if}
   </div>
 
@@ -133,12 +191,59 @@
 
   .report-actions {
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.75rem;
     margin-top: 1rem;
   }
 
-  .report-actions button {
+  .action-full {
+    width: 100%;
+  }
+
+  .share-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .action-main {
     flex: 1;
+  }
+
+  .action-sub {
+    flex: 0 0 auto;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #666666);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    white-space: nowrap;
+    min-height: auto;
+    min-width: auto;
+  }
+
+  .action-sub:hover {
+    color: var(--color-text, #1a1a1a);
+  }
+
+  .share-step {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .step-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted, #666666);
+  }
+
+  .step-done {
+    opacity: 0.7;
   }
 
   .report-photos {
@@ -163,12 +268,5 @@
     height: 100%;
     object-fit: cover;
     display: block;
-  }
-
-  .photo-share-note {
-    font-size: 0.8rem;
-    color: var(--color-text-muted, #666666);
-    margin-top: 0.375rem;
-    font-style: italic;
   }
 </style>
