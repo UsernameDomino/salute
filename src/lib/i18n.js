@@ -111,7 +111,7 @@ export const translations = {
       undo_available: 'Undo',
       required_fields: 'Please fill in required fields',
       photos_count: '{n} / 5 photos',
-      photos_share_note: 'Photos will be included when sharing',
+      photos_share_note: 'Report + photos will be shared as files',
       max_photos: 'Maximum 5 photos reached'
     },
 
@@ -292,7 +292,7 @@ export const translations = {
       undo_available: 'Deshacer',
       required_fields: 'Por favor complete los campos requeridos',
       photos_count: '{n} / 5 fotos',
-      photos_share_note: 'Las fotos se incluirán al compartir',
+      photos_share_note: 'El informe + fotos se compartirán como archivos',
       max_photos: 'Máximo 5 fotos alcanzado'
     },
 

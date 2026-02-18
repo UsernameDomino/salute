@@ -114,8 +114,9 @@ export function canShareFiles(files) {
 }
 
 /**
- * Shares text and files together using Web Share API
- * Falls back to text-only sharing if file sharing is unsupported
+ * Shares text and files together using Web Share API.
+ * Bundles the report text as a .txt file so apps like Signal that
+ * drop the text field when files are present still deliver it.
  * @param {string} text - Report text
  * @param {File[]} files - Photo files to share
  * @param {string} title - Share dialog title
@@ -126,10 +127,15 @@ export async function shareWithFiles(text, files, title = 'SALUTE Report') {
     return { success: false, error: 'Web Share API not supported' }
   }
 
-  const shareData = { title, text }
+  const reportFile = new File([text], 'SALUTE-Report.txt', { type: 'text/plain' })
+  const allFiles = [reportFile, ...files]
 
-  if (files.length > 0 && canShareFiles(files)) {
-    shareData.files = files
+  const shareData = { title }
+
+  if (canShareFiles(allFiles)) {
+    shareData.files = allFiles
+  } else {
+    shareData.text = text
   }
 
   try {
