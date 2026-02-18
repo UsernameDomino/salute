@@ -6,6 +6,7 @@
   import FieldSection from './FieldSection.svelte'
   import LocationSection from './LocationSection.svelte'
   import TimePicker from './TimePicker.svelte'
+  import PhotoCapture from './PhotoCapture.svelte'
   import ReportOutput from './ReportOutput.svelte'
   import { formatReport } from '../lib/formatReport.js'
   import { t } from '../lib/i18n.js'
@@ -19,6 +20,8 @@
     time: { value: null, relative: '' },
     equipment: { presets: [], details: '' }
   })
+
+  let photos = $state([])
 
   let showReport = $state(false)
   let reportText = $state('')
@@ -84,7 +87,7 @@
       return
     }
     showValidationError = false
-    reportText = formatReport(formData)
+    reportText = formatReport(formData, photos.length)
     showReport = true
   }
 
@@ -103,6 +106,7 @@
       time: { value: null, relative: '' },
       equipment: { presets: [], details: '' }
     }
+    photos = []
     showReport = false
     reportText = ''
     formKey++ // Force re-render of child components
@@ -208,6 +212,11 @@
         outputLabel={$t('report.equipment')}
         onchange={(value) => formData.equipment = value}
       />
+
+      <PhotoCapture
+        {photos}
+        onchange={(value) => photos = value}
+      />
     </div>
     {/key}
 
@@ -269,7 +278,7 @@
         {$t('buttons.back')}
       </button>
 
-      <ReportOutput report={reportText} />
+      <ReportOutput report={reportText} {photos} />
     </div>
   {/if}
 </div>

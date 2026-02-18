@@ -98,3 +98,47 @@ export async function shareText(text, title = 'SALUTE Report') {
     return { success: false, error: err.message }
   }
 }
+
+/**
+ * Checks if file sharing is supported via Web Share API
+ * @param {File[]} files - Files to check shareability for
+ * @returns {boolean}
+ */
+export function canShareFiles(files) {
+  if (!canShare() || !navigator.canShare) return false
+  try {
+    return navigator.canShare({ files })
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Shares text and files together using Web Share API
+ * Falls back to text-only sharing if file sharing is unsupported
+ * @param {string} text - Report text
+ * @param {File[]} files - Photo files to share
+ * @param {string} title - Share dialog title
+ * @returns {Promise<object>} - { success: boolean, error?: string }
+ */
+export async function shareWithFiles(text, files, title = 'SALUTE Report') {
+  if (!canShare()) {
+    return { success: false, error: 'Web Share API not supported' }
+  }
+
+  const shareData = { title, text }
+
+  if (files.length > 0 && canShareFiles(files)) {
+    shareData.files = files
+  }
+
+  try {
+    await navigator.share(shareData)
+    return { success: true }
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      return { success: false, error: 'Share cancelled' }
+    }
+    return { success: false, error: err.message }
+  }
+}

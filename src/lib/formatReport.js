@@ -86,22 +86,29 @@ function formatTime(timeField) {
 /**
  * Generates a complete SALUTE report
  * @param {object} data - SALUTE data object
+ * @param {number} [photoCount=0] - Number of attached photos
  * @returns {string}
  */
-export function formatReport(data) {
+export function formatReport(data, photoCount = 0) {
   const now = new Date()
   const dateStr = now.toISOString().split('T')[0]
   const timeStr = now.toTimeString().slice(0, 5)
 
-  const report = `═══ SIGHTING REPORT ═══
-Report generated: ${dateStr} ${timeStr}
-
-SIZE: ${formatFieldValue(data.size)}
+  let body = `SIZE: ${formatFieldValue(data.size)}
 ACTIVITY: ${formatFieldValue(data.activity)}
 LOCATION: ${formatLocation(data.location)}
 UNIFORMS: ${formatFieldValue(data.unit)}
 TIME OBSERVED: ${formatTime(data.time)}
-EQUIPMENT: ${formatFieldValue(data.equipment)}
+EQUIPMENT: ${formatFieldValue(data.equipment)}`
+
+  if (photoCount > 0) {
+    body += `\nPHOTOS: ${photoCount} attached`
+  }
+
+  const report = `═══ SIGHTING REPORT ═══
+Report generated: ${dateStr} ${timeStr}
+
+${body}
 
 ═══════════════════════`
 

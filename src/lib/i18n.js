@@ -21,7 +21,8 @@ export const translations = {
       location: 'Location',
       unit: 'Uniform',
       time: 'Time Observed',
-      equipment: 'Equipment'
+      equipment: 'Equipment',
+      photos: 'Photos'
     },
 
     // Presets by field
@@ -86,7 +87,10 @@ export const translations = {
       copy: 'Copy Report',
       share: 'Share',
       back: '← Back to Form',
-      undo: 'Undo'
+      undo: 'Undo',
+      take_photo: 'Take Photo',
+      choose_photo: 'Choose from Gallery',
+      remove_photo: 'Remove'
     },
 
     // Placeholders
@@ -105,7 +109,10 @@ export const translations = {
       copy_failed: 'Failed to copy',
       cleared: 'Form cleared',
       undo_available: 'Undo',
-      required_fields: 'Please fill in required fields'
+      required_fields: 'Please fill in required fields',
+      photos_count: '{n} / 5 photos',
+      photos_share_note: 'Photos will be included when sharing',
+      max_photos: 'Maximum 5 photos reached'
     },
 
     // Install prompt
@@ -124,7 +131,9 @@ export const translations = {
       location: 'LOCATION',
       unit: 'UNIFORMS',
       time: 'TIME',
-      equipment: 'EQUIPMENT'
+      equipment: 'EQUIPMENT',
+      photos: 'PHOTOS',
+      photos_attached: '{n} attached'
     },
 
     // Explainer
@@ -193,7 +202,8 @@ export const translations = {
       location: 'Ubicación',
       unit: 'Uniforme',
       time: 'Hora Observada',
-      equipment: 'Equipo'
+      equipment: 'Equipo',
+      photos: 'Fotos'
     },
 
     // Presets by field
@@ -258,7 +268,10 @@ export const translations = {
       copy: 'Copiar Informe',
       share: 'Compartir',
       back: '← Volver al Formulario',
-      undo: 'Deshacer'
+      undo: 'Deshacer',
+      take_photo: 'Tomar Foto',
+      choose_photo: 'Elegir de Galería',
+      remove_photo: 'Eliminar'
     },
 
     // Placeholders
@@ -277,7 +290,10 @@ export const translations = {
       copy_failed: 'Error al copiar',
       cleared: 'Formulario limpiado',
       undo_available: 'Deshacer',
-      required_fields: 'Por favor complete los campos requeridos'
+      required_fields: 'Por favor complete los campos requeridos',
+      photos_count: '{n} / 5 fotos',
+      photos_share_note: 'Las fotos se incluirán al compartir',
+      max_photos: 'Máximo 5 fotos alcanzado'
     },
 
     // Install prompt
@@ -296,7 +312,9 @@ export const translations = {
       location: 'UBICACIÓN',
       unit: 'UNIFORMES',
       time: 'HORA',
-      equipment: 'EQUIPO'
+      equipment: 'EQUIPO',
+      photos: 'FOTOS',
+      photos_attached: '{n} adjunta(s)'
     },
 
     // Explainer
