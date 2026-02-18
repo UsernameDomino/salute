@@ -14,17 +14,23 @@
   // State
   let showExplainer = $state(false)
 
-  // Register service worker on mount
+  // Register service worker and reload when a new version activates
   $effect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('SW registered:', registration.scope)
+    if (!('serviceWorker' in navigator)) return
+
+    navigator.serviceWorker.register('/sw.js')
+      .then((reg) => {
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing
+          if (!newWorker) return
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+              window.location.reload()
+            }
+          })
         })
-        .catch((error) => {
-          console.log('SW registration failed:', error)
-        })
-    }
+      })
+      .catch((err) => console.log('SW registration failed:', err))
   })
 </script>
 
