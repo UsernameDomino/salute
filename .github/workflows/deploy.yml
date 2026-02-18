@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   workflow_dispatch:
 
 permissions:
@@ -21,16 +21,30 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
+
+      # Build main branch for root /
+      - uses: actions/checkout@v4
+        with:
+          ref: main
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - run: mkdir -p _site && cp -r dist/* _site/
+
+      # Build staging branch for /staging/
+      - uses: actions/checkout@v4
+        with:
+          ref: staging
+          clean: false
+      - run: pnpm install --frozen-lockfile
+      - run: VITE_BASE=/staging/ pnpm build
+      - run: mkdir -p _site/staging && cp -r dist/* _site/staging/
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

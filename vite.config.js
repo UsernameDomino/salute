@@ -4,6 +4,7 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.VITE_BASE || '/',
   plugins: [svelte(), viteSingleFile()],
   build: {
     // ES2015 target for broad browser support
