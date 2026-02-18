@@ -1,13 +1,14 @@
 // Service Worker for S.A.L.U.T.E. Reporter
 // Provides offline functionality by caching all assets
-// __BUILD_HASH__ is replaced at build time by the Vite plugin
+// __BUILD_HASH__ and __BASE__ are replaced at build time by the Vite plugin
 
 const CACHE_NAME = 'salute-__BUILD_HASH__'
+const BASE = '__BASE__'
 
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  BASE,
+  BASE + 'index.html',
+  BASE + 'manifest.json'
 ]
 
 // Install - cache core assets, activate immediately

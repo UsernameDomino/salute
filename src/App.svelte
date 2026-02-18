@@ -18,7 +18,18 @@
   $effect(() => {
     if (!('serviceWorker' in navigator)) return
 
-    navigator.serviceWorker.register('/sw.js')
+    const swUrl = new URL('sw.js', new URL(import.meta.env.BASE_URL || '/', location.href)).href
+
+    // Unregister any stale SWs whose scope doesn't match the current base path
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const reg of registrations) {
+        if (!swUrl.startsWith(reg.scope)) {
+          reg.unregister()
+        }
+      }
+    })
+
+    navigator.serviceWorker.register(swUrl)
       .then((reg) => {
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing

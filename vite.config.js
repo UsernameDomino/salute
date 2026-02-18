@@ -10,6 +10,7 @@ import path from 'node:path'
  */
 function swCacheBust() {
   const hash = Date.now().toString(36)
+  const base = process.env.VITE_BASE || '/'
   return {
     name: 'sw-cache-bust',
     apply: 'build',
@@ -17,7 +18,10 @@ function swCacheBust() {
       const swPath = path.resolve('dist', 'sw.js')
       if (fs.existsSync(swPath)) {
         const contents = fs.readFileSync(swPath, 'utf-8')
-        fs.writeFileSync(swPath, contents.replace(/__BUILD_HASH__/g, hash))
+        fs.writeFileSync(swPath, contents
+          .replace(/__BUILD_HASH__/g, hash)
+          .replace(/__BASE__/g, base)
+        )
       }
     }
   }
